@@ -100,7 +100,7 @@ void fragment() {
 			// c.x: circle signed distance
 			// c.yz: gradient of distance with respect to uv
 			vec3 c = circle_sdfg(vec2(0.5), 0.2, uv) * 20.0;
-			float duty_cycle = sin(PI * UV.x + TIME) * 0.5 + 0.5;
+			float duty_cycle = sin((UV.x * 0.5 + TIME * 0.25) * TAU) * 0.5 + 0.5;
 			
 			// Use the chain rule to compute screen-space derivatives of the distance:
 			// d(c.x)/dx = dot(dc/duv, duv/dx)
@@ -146,8 +146,8 @@ void fragment() {
 			COLOR.rgb = color * signal * falloff;
 			break;
 		case 3:
-			float l = sin(uv.x * 2.0 * TAU + TIME * 0.2) * 0.5 + 0.5;
-			float x = uv.y * 8.0 + TIME + sin(uv.x * 4.0 * TAU + TIME * 2.0 + uv.y * 5.0) * 0.3;
+			float l = sin((uv.x * 2.0 + TIME * 0.25) * TAU) * 0.5 + 0.5;
+			float x = uv.y * 8.0 + TIME + sin((uv.x * 4.0 + TIME * 0.5 + uv.y * 2.0) * TAU) * 0.3;
 			// Pattern is complicated so we use automatic differentiation.
 			// Causes artifacts at edges.
 			float signal = pulsetrain_gaussian(l, x);

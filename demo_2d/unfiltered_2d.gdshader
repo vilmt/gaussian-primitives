@@ -88,8 +88,9 @@ void fragment() {
 	
 	switch (i) {
 		case 0:
-			vec3 circle = circle_sdfg(vec2(0.5), 0.2, uv) * 20.0;
-			float signal = pulsetrain(sin(PI * UV.x + TIME) * 0.5 + 0.5, circle.x);
+			vec3 c = circle_sdfg(vec2(0.5), 0.2, uv) * 20.0;
+			float duty_cycle = sin((UV.x * 0.5 + TIME * 0.25) * TAU) * 0.5 + 0.5;
+			float signal = pulsetrain(duty_cycle, c.x);
 			COLOR.rgb = vec3(signal);
 			break;
 		case 1:
@@ -128,8 +129,9 @@ void fragment() {
 			COLOR.rgb = color * signal * falloff;
 			break;
 		case 3:
-			float l = sin(uv.x * 2.0 * TAU + TIME * 0.2) * 0.5 + 0.5;
-			float x = uv.y * 8.0 + TIME + sin(uv.x * 4.0 * TAU + TIME * 2.0 + uv.y * 5.0) * 0.3;
+			float l = sin((uv.x * 2.0 + TIME * 0.25) * TAU) * 0.5 + 0.5;
+			float x = uv.y * 8.0 + TIME + sin((uv.x * 4.0 + TIME * 0.5 + uv.y * 2.0) * TAU) * 0.3;
+			
 			float signal = pulsetrain(l, x);
 			COLOR.rgb = vec3(signal);
 			break;

@@ -28,7 +28,7 @@ size_flags_vertical = 3
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/outline_size = 4
-theme_override_font_sizes/font_size = 20
+theme_override_font_sizes/font_size = 30
 text = "Unfiltered Signal"
 
 [node name="AspectRatioContainer" type="AspectRatioContainer" parent="VBoxContainer" unique_id=1153459068]
@@ -50,7 +50,7 @@ size_flags_vertical = 3
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/outline_size = 4
-theme_override_font_sizes/font_size = 20
+theme_override_font_sizes/font_size = 30
 text = "Analytical Gaussian Filtered Signal"
 
 [node name="AspectRatioContainer" type="AspectRatioContainer" parent="VBoxContainer2" unique_id=1737569406]
