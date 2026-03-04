@@ -1,0 +1,12 @@
+[gd_resource type="ShaderMaterial" format=3 uid="uid://dwqsyyjrk1o4v"]
+
+[ext_resource type="Shader" uid="uid://yepq5p32xosl" path="res://demo_3d/comparison_3d.gdshader" id="1_2wj1w"]
+[ext_resource type="Texture2D" uid="uid://b0cfrjgcufvwa" path="res://demo_3d/sampler.png" id="2_j5w1l"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_2wj1w")
+shader_parameter/sampler = ExtResource("2_j5w1l")
+shader_parameter/scale = Vector3(1, 1, 1)
+shader_parameter/offset = Vector3(0, 0, 0)
+shader_parameter/wrap_mode = 1

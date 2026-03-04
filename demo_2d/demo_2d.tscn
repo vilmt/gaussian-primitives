@@ -1,0 +1,64 @@
+[gd_scene format=3 uid="uid://dth5yhk1g84nr"]
+
+[ext_resource type="Shader" uid="uid://dmegtyjctmwj1" path="res://demo_2d/unfiltered_2d.gdshader" id="1_v48bb"]
+[ext_resource type="Shader" uid="uid://wa4li1uby1pc" path="res://demo_2d/filtered_2d.gdshader" id="2_taqxh"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_c6xj6"]
+shader = ExtResource("1_v48bb")
+shader_parameter/point_a = Vector2(0, 0)
+shader_parameter/point_b = Vector2(0.5, 0)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_6bw2v"]
+shader = ExtResource("2_taqxh")
+
+[node name="Demo2D" type="HBoxContainer" unique_id=1823674265]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+
+[node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=370666677]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Label2" type="Label" parent="VBoxContainer" unique_id=1562159223]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 20
+text = "Unfiltered Signal"
+
+[node name="AspectRatioContainer" type="AspectRatioContainer" parent="VBoxContainer" unique_id=1153459068]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="UnfilteredRect" type="ColorRect" parent="VBoxContainer/AspectRatioContainer" unique_id=214719657]
+material = SubResource("ShaderMaterial_c6xj6")
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="VBoxContainer2" type="VBoxContainer" parent="." unique_id=1431138457]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Label2" type="Label" parent="VBoxContainer2" unique_id=96545899]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 20
+text = "Analytical Gaussian Filtered Signal"
+
+[node name="AspectRatioContainer" type="AspectRatioContainer" parent="VBoxContainer2" unique_id=1737569406]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="FilteredRect" type="ColorRect" parent="VBoxContainer2/AspectRatioContainer" unique_id=162546867]
+material = SubResource("ShaderMaterial_6bw2v")
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3

@@ -1,0 +1,98 @@
+[gd_scene format=3 uid="uid://bb5dv7pmibooq"]
+
+[ext_resource type="Script" uid="uid://bp8kf7mmugbwu" path="res://demo_3d/camera_pivot.gd" id="1_y7qeb"]
+[ext_resource type="Material" uid="uid://dwqsyyjrk1o4v" path="res://demo_3d/comparison_3d.tres" id="3_gdcwo"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_y7qeb"]
+sky_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
+ground_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
+
+[sub_resource type="Sky" id="Sky_gdcwo"]
+sky_material = SubResource("ProceduralSkyMaterial_y7qeb")
+
+[sub_resource type="Environment" id="Environment_elihh"]
+background_mode = 2
+sky = SubResource("Sky_gdcwo")
+tonemap_mode = 2
+glow_enabled = true
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_cfrgr"]
+size = Vector2(1000, 1000)
+
+[sub_resource type="SphereMesh" id="SphereMesh_y7qeb"]
+radius = 3.0
+height = 6.0
+
+[sub_resource type="SphereMesh" id="SphereMesh_2p4wl"]
+radius = 6.0
+height = 12.0
+
+[sub_resource type="SphereMesh" id="SphereMesh_gdcwo"]
+radius = 12.0
+height = 24.0
+
+[node name="Demo3D" type="Node3D" unique_id=1003324392]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=868038035]
+environment = SubResource("Environment_elihh")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=851289685]
+transform = Transform3D(-0.8660254, -0.43301278, 0.25, 0, 0.49999997, 0.86602545, -0.50000006, 0.75, -0.43301266, 0, 0, 0)
+shadow_enabled = true
+
+[node name="CameraPivot" type="Node3D" parent="." unique_id=675908671]
+transform = Transform3D(1.0000001, 0, 0, 0, 0.96205163, 0.272868, 0, -0.272868, 0.96205163, 0, 0, -10)
+script = ExtResource("1_y7qeb")
+
+[node name="Camera3D" type="Camera3D" parent="CameraPivot" unique_id=267164680]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 10)
+
+[node name="Objects" type="Node3D" parent="." unique_id=1678096988]
+
+[node name="Plane2" type="MeshInstance3D" parent="Objects" unique_id=2031597591]
+mesh = SubResource("PlaneMesh_cfrgr")
+surface_material_override/0 = ExtResource("3_gdcwo")
+
+[node name="Ball2" type="MeshInstance3D" parent="Objects" unique_id=408415830]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.2810822, 0, -23.799086)
+mesh = SubResource("SphereMesh_y7qeb")
+surface_material_override/0 = ExtResource("3_gdcwo")
+
+[node name="Ball3" type="MeshInstance3D" parent="Objects" unique_id=1558469189]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9.062807, 0, -25.52147)
+mesh = SubResource("SphereMesh_2p4wl")
+surface_material_override/0 = ExtResource("3_gdcwo")
+
+[node name="Ball4" type="MeshInstance3D" parent="Objects" unique_id=1121887796]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.4474869, 0, -36.406548)
+mesh = SubResource("SphereMesh_gdcwo")
+surface_material_override/0 = ExtResource("3_gdcwo")
+
+[node name="Labels" type="HBoxContainer" parent="." unique_id=1209700860]
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 23.0
+grow_horizontal = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+
+[node name="Label" type="Label" parent="Labels" unique_id=1512701995]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 20
+text = "Unfiltered Signal"
+
+[node name="Label2" type="Label" parent="Labels" unique_id=1756968999]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 20
+text = "Analytical Gaussian Filtered Signal"
+
+[node name="Label3" type="Label" parent="Labels" unique_id=1954421887]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 20
+text = "16x Anisotropic Mipmapped Texture"
