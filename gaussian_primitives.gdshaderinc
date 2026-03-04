@@ -1,10 +1,10 @@
 /*
-Gaussian Primitives library by vilmt
+Gaussian Primitives by vilmt
 
-* A collection of Gaussian-convolved binary primitives (step, pulse, pulsetrain)
-* Includes functions with and without explicit derivatives
-* Includes all component-wise types from float to vec4
-* Useful when combined with signed distance fields
+* A small library of analytic, Gaussian-integrated binary primitives (step, pulse, and periodic pulsetrain)
+* Designed for antialiased rendering of hard thresholds or SDF-based shapes
+* Supports both implicit derivatives (`dFdx` / `dFdy`) and explicit differentiation
+* Includes component-wise overloads for `float`, `vec2`, `vec3`, and `vec4`
 */
 
 // Larger = sharper transitions, smaller = more smoothing (e.g. 0.5 removes pulsetrain aliasing)
