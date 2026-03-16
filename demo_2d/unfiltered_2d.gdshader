@@ -41,29 +41,17 @@ float star_sdf(float r, vec2 p) {
     return length(p-v3*clamp(dot(p,v3),0.0,k1z*r)) * sign(p.y*v3.x-p.x*v3.y);
 }
 
-vec3 heart_sdfg(vec2 p) {
-    float sx = (p.x<0.0)?-1.0:1.0;
+float dot2(vec2 x) {
+	return dot(x, x);
+}
+
+float heart_sdf(vec2 p) {
     p.x = abs(p.x);
- 
-    if ( p.y+p.x>1.0 ) {
-        const float r = sqrt(2.0)/4.0;
-        vec2 q0 = p - vec2(0.25,0.75);
-        float l = length(q0);
-        vec3 d = vec3(l-r, q0/l);
-        d.y *= sx;
-        return d;
-    } else {
-        vec2 q1 = p - vec2(0.0,1.0);      
-        vec2 q2 = p - 0.5*max(p.x+p.y,0.0);
-        vec3 d1 = vec3(dot(q1,q1),q1);
-        vec3 d2 = vec3(dot(q2,q2),q2);
-        vec3 d = (d1.x<d2.x) ? d1: d2;
-        d.x = sqrt(d.x);
-        d.yz /= d.x;
-        d *= (p.x>p.y)?1.0:-1.0;
-        d.y *= sx;
-        return d;
-    }
+
+    if( p.y+p.x>1.0 )
+        return sqrt(dot2(p-vec2(0.25,0.75))) - sqrt(2.0)/4.0;
+    return sqrt(min(dot2(p-vec2(0.00,1.00)),
+                    dot2(p-0.5*max(p.x+p.y,0.0)))) * sign(p.x-p.y);
 }
 
 // https://iquilezles.org/articles/bandlimiting/
@@ -119,13 +107,13 @@ void fragment() {
 			float scale = 2.0 + cos(TIME * TAU) * 0.2;
 			uv *= scale;
 			
-			vec3 heart = abs(heart_sdfg(uv));
-			heart = pow(heart, vec3(1.3));
-			float falloff = smoothstep(0.25, 0.0, abs(heart.x));
-			vec3 color = rainbow(heart.x + TIME * 0.5);
+			float heart = abs(heart_sdf(uv));
+			heart = pow(heart, 1.3);
+			float falloff = smoothstep(0.25, 0.0, heart);
+			vec3 color = rainbow(heart + TIME * 0.5);
 			heart *= 10.0;
-			heart.x -= TIME * 1.0;
-			float signal = pulsetrain(0.5, heart.x);
+			heart -= TIME * 1.0;
+			float signal = pulsetrain(0.5, heart);
 			COLOR.rgb = color * signal * falloff;
 			break;
 		case 3:

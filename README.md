@@ -10,13 +10,11 @@ Shader Include for Godot 4+
 [Supporting Desmos graph](https://www.desmos.com/calculator/g3mmfl34ve)
 
 ## 3D comparison - checkerboard stress-test
-* At close viewing distances, visual quality is comparable or better than the texture-based checkerboard
-* At far distances, the analytic filter produces a slightly blurrier result with reduced aliasing and moiré interference
+* For perspective-influenced signals, `SHARPNESS` offers a tradeoff between aliasing artifacts and a predictable blur
 
 ![Comparison 3D](/comparisons/comparison_3d.png)
 
 ## 2D comparison - animated stress tests
-* With `SHARPNESS = 1.0`, aliasing is almost completely eliminated, with only a subtle and stable blur
-* Reducing `SHARPNESS` to `0.5` fully suppresses aliasing at the cost of additional smoothing
+* In simple 2D scenes, aliasing is almost completely eliminated, with only a subtle and stable blur
 
 ![Comparison 2D](/comparisons/comparison_2d.gif)

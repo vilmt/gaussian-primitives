@@ -7,25 +7,28 @@ Gaussian Primitives by vilmt
 * Includes component-wise overloads for `float`, `vec2`, `vec3`, and `vec4`
 */
 
-// Larger = sharper transitions, smaller = more smoothing (e.g. 0.5 removes pulsetrain aliasing)
-#define SHARPNESS 1.0
+// Larger = sharper transitions, smaller = more smoothing
+#define SHARPNESS 0.7
 
 // Magnitude of screen-space gradient (filter footprint w)
 #define DERIV_LENGTH(dpdx, dpdy) max(sqrt(dpdx * dpdx + dpdy * dpdy), 1e-6)
 //#define DERIV_LENGTH(dpdx, dpdy) max(max(abs(dpdx), abs(dpdy)), 1e-6)
 
-// Approximate Gaussian CDF: integral from -∞ to p of exp(-PI * x * x)
-
-// 2% max error, still negligible
+// Approximate Gaussian CDF: integral from -∞ to p of exp(-PI * p * p)
+// www.reddit.com/r/vulkan/comments/c4r7qx/erf_for_vulkan/
+// TODO: find an even cheaper approximation. Precision can still be reduced almost for free.
 #define _Z_DEFINE(type) \
 type Z(type p) { \
-	return 0.5 + 0.5 * tanh(2.133 * p); \
+	type a = abs(p); \
+	type y = a * (a * (a * 0.02116217607 + 0.06389419205) + 0.06263162425) + 1.0; \
+	y = y * y; \
+	y = y * y; \
+	y = y * y; \
+	y = y * y; \
+	y = y * y; \
+	y = 1.0 - 1.0 / y; \
+	return 0.5 + 0.5 * y * sign(p); \
 }
-//#define _Z_DEFINE(type) \
-//type Z(type p) { \
-	//const float c = 0.280955440565; \
-	//return 0.5 + 0.5 * tanh(2.0 * p * (1.0 + c * p * p)); \
-//}
 
 _Z_DEFINE(float)
 _Z_DEFINE(vec2)
@@ -36,7 +39,9 @@ _Z_DEFINE(vec4)
 
 #define _STEP_DEFINE(type) \
 type step_gaussian(type edge, type p) { \
-	type inv_w = SHARPNESS / DERIV_LENGTH(dFdx(p), dFdy(p)); \
+	type dpdx = dFdx(p); \
+	type dpdy = dFdy(p); \
+	type inv_w = SHARPNESS / DERIV_LENGTH(dpdx, dpdy); \
 	return Z(inv_w * (p - edge)); \
 }
 
@@ -50,7 +55,9 @@ type step_gaussian(type edge, type p, type dpdx, type dpdy) { \
 
 #define _PULSE_DEFINE(type) \
 type pulse_gaussian(type edge_a, type edge_b, type p) { \
-	type inv_w = SHARPNESS / DERIV_LENGTH(dFdx(p), dFdy(p)); \
+	type dpdx = dFdx(p); \
+	type dpdy = dFdy(p); \
+	type inv_w = SHARPNESS / DERIV_LENGTH(dpdx, dpdy); \
 	return Z(inv_w * (p - edge_a)) - Z(inv_w * (p - edge_b)); \
 }
 
@@ -62,35 +69,31 @@ type pulse_gaussian(type edge_a, type edge_b, type p, type dpdx, type dpdy) { \
 
 // Pulsetrain: 1 when there exists an integer k such that |p - k| < duty/2, else 0
 
-/* Since we cannot compute an infinite sum, we sum only 5 pulses (k = -2..2) and
+/* Since we cannot compute an infinite sum, we sum only 3 pulses (k = -1, 0, 1) and
    blend to the average value (duty) when the filter footprint becomes large. */
-#define FALLBACK 1.5 
-#define BLEND_RANGE 0.01 // Does very little since error is small at fallback
 
 #define _PULSETRAIN_DEFINE(type) \
 type pulsetrain_gaussian(type duty, type p) { \
-	type w = DERIV_LENGTH(dFdx(p), dFdy(p)) / SHARPNESS; \
-	type inv_w = 1.0 / w; \
-	type c = round(p); \
-	type r = type(0.0); \
-	for (int k = -2; k <= 2; k++) { \
-		type pk = p - c + float(k); \
-		r += Z(inv_w * (pk + duty * 0.5)) - Z(inv_w * (pk - duty * 0.5)); \
-	} \
-	return mix(r, duty, smoothstep(FALLBACK - BLEND_RANGE, FALLBACK, w)); \
+	type dpdx = dFdx(p); \
+	type dpdy = dFdy(p); \
+	type w = DERIV_LENGTH(dpdx, dpdy) / SHARPNESS; \
+	type inv_w = 1.0 / w, d = 0.5 * inv_w * duty; \
+	p = inv_w * (p - round(p)); \
+	type r = Z(p + inv_w + d) - Z(p + inv_w - d) \
+		   + Z(p + d) - Z(p - d) \
+		   + Z(p - inv_w + d) - Z(p - inv_w - d); \
+	return mix(r, duty, smoothstep(1.1, 1.2, w)); \
 }
 
 #define _PULSETRAIN_DEFINE_EXPLICIT(type) \
 type pulsetrain_gaussian(type duty, type p, type dpdx, type dpdy) { \
 	type w = DERIV_LENGTH(dpdx, dpdy) / SHARPNESS; \
-	type inv_w = 1.0 / w; \
-	type c = round(p); \
-	type r = type(0.0); \
-	for (int k = -2; k <= 2; k++) { \
-		type pk = p - c + float(k); \
-		r += Z(inv_w * (pk + duty * 0.5)) - Z(inv_w * (pk - duty * 0.5)); \
-	} \
-	return mix(r, duty, smoothstep(FALLBACK - BLEND_RANGE, FALLBACK, w)); \
+	type inv_w = 1.0 / w, d = 0.5 * inv_w * duty; \
+	p = inv_w * (p - round(p)); \
+	type r = Z(p + inv_w + d) - Z(p + inv_w - d) \
+		   + Z(p + d) - Z(p - d) \
+		   + Z(p - inv_w + d) - Z(p - inv_w - d); \
+	return mix(r, duty, smoothstep(1.1, 1.2, w)); \
 }
 
 _STEP_DEFINE(float)
