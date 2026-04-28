@@ -18,17 +18,18 @@ vec3 pulsetrain(vec3 duty, vec3 p) {
 void vertex() {
 	switch (wrap_mode) {
 		case 0:
-			vertex_p = (UV.xyy - offset) / scale;
+			vertex_p = UV.xyy - offset;
 			break;
 		case 1:
-			vertex_p = (VERTEX - offset) / scale;
+			vertex_p = VERTEX - offset;
 			vertex_p.y *= -1.0;
 			break;
 		case 2:
-			vertex_p = (MODEL_MATRIX * vec4(VERTEX - offset, 1.0)).xyz / scale;
+			vertex_p = (MODEL_MATRIX * vec4(VERTEX - offset, 1.0)).xyz;
 			vertex_p.y *= -1.0;
 			break;
 	}
+	vertex_p /= scale;
 }
 
 void fragment() {
