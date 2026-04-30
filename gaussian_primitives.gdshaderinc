@@ -11,9 +11,9 @@ Gaussian Primitives by vilmt
 #define SHARPNESS 1.5
 
 // Magnitude of screen-space gradient (filter footprint w)
-//#define NORM(dpdx, dpdy) (abs(dpdx) + abs(dpdy)) // L1 norm
-#define NORM(dpdx, dpdy) sqrt(dpdx * dpdx + dpdy * dpdy) // L2 norm
-//#define NORM(dpdx, dpdy) max(abs(dpdx), abs(dpdy)) // L∞ norm
+//#define NORM(dpdx, dpdy) max((abs(dpdx) + abs(dpdy)), 1e-6) // L1 norm
+#define NORM(dpdx, dpdy) max(sqrt(dpdx * dpdx + dpdy * dpdy), 1e-6) // L2 norm
+//#define NORM(dpdx, dpdy) max(max(abs(dpdx), abs(dpdy)), 1e-6) // L∞ norm
 
 // Error function approximation. Integral of gaussian.
 // Source: https://github.com/Photosounder/rouziclib
@@ -35,14 +35,14 @@ _ERF_DEFINE(vec4)
 type step_gaussian(type edge, type p) { \
 	type dpdx = dFdx(p); \
 	type dpdy = dFdy(p); \
-	type inv_w = SHARPNESS / NORM(dpdx, dpdy); \
-	return 0.5 + 0.5 * erf(inv_w * (p - edge)); \
+	type w = SHARPNESS / NORM(dpdx, dpdy); \
+	return 0.5 + 0.5 * erf(w * (p - edge)); \
 }
 
 #define _STEP_DEFINE_EXPLICIT(type) \
 type step_gaussian(type edge, type p, type dpdx, type dpdy) { \
-	type inv_w = SHARPNESS / NORM(dpdx, dpdy); \
-	return 0.5 + 0.5 * erf(inv_w * (p - edge)); \
+	type w = SHARPNESS / NORM(dpdx, dpdy); \
+	return 0.5 + 0.5 * erf(w * (p - edge)); \
 }
 
 // Pulse: 1 when edge_a < p < edge_b, else 0
@@ -51,14 +51,14 @@ type step_gaussian(type edge, type p, type dpdx, type dpdy) { \
 type pulse_gaussian(type edge_a, type edge_b, type p) { \
 	type dpdx = dFdx(p); \
 	type dpdy = dFdy(p); \
-	type inv_w = SHARPNESS / NORM(dpdx, dpdy); \
-	return 0.5 * (erf(inv_w * (p - edge_a)) - erf(inv_w * (p - edge_b))); \
+	type w = SHARPNESS / NORM(dpdx, dpdy); \
+	return 0.5 * (erf(w * (p - edge_a)) - erf(w * (p - edge_b))); \
 }
 
 #define _PULSE_DEFINE_EXPLICIT(type) \
 type pulse_gaussian(type edge_a, type edge_b, type p, type dpdx, type dpdy) { \
-	type inv_w = SHARPNESS / NORM(dpdx, dpdy); \
-	return 0.5 * (erf(inv_w * (p - edge_a)) - erf(inv_w * (p - edge_b))); \
+	type w = SHARPNESS / NORM(dpdx, dpdy); \
+	return 0.5 * (erf(w * (p - edge_a)) - erf(w * (p - edge_b))); \
 }
 
 // Pulsetrain: 1 when there exists an integer k such that |p - k| < duty/2, else 0
@@ -70,24 +70,24 @@ type pulse_gaussian(type edge_a, type edge_b, type p, type dpdx, type dpdy) { \
 type pulsetrain_gaussian(type duty, type p) { \
 	type dpdx = dFdx(p); \
 	type dpdy = dFdy(p); \
-	type w = NORM(dpdx, dpdy) / SHARPNESS; \
-	type inv_w = 1.0 / w, d = 0.5 * inv_w * duty; \
-	p = inv_w * (p - round(p)); \
-	type r = erf(p + inv_w + d) - erf(p + inv_w - d) \
+	type w = SHARPNESS / NORM(dpdx, dpdy); \
+	type d = 0.5 * w * duty; \
+	p = w * (p - round(p)); \
+	type r = erf(p + w + d) - erf(p + w - d) \
 		   + erf(p + d) - erf(p - d) \
-		   + erf(p - inv_w + d) - erf(p - inv_w - d); \
-	return mix(0.5 * r, duty, smoothstep(1.1, 1.2, w)); \
+		   + erf(p - w + d) - erf(p - w - d); \
+	return mix(0.5 * r, duty, smoothstep(1.6, 1.4, w)); \
 }
 
 #define _PULSETRAIN_DEFINE_EXPLICIT(type) \
 type pulsetrain_gaussian(type duty, type p, type dpdx, type dpdy) { \
-	type w = NORM(dpdx, dpdy) / SHARPNESS; \
-	type inv_w = 1.0 / w, d = 0.5 * inv_w * duty; \
-	p = inv_w * (p - round(p)); \
-	type r = erf(p + inv_w + d) - erf(p + inv_w - d) \
+	type w = SHARPNESS / NORM(dpdx, dpdy); \
+	type d = 0.5 * w * duty; \
+	p = w * (p - round(p)); \
+	type r = erf(p + w + d) - erf(p + w - d) \
 		   + erf(p + d) - erf(p - d) \
-		   + erf(p - inv_w + d) - erf(p - inv_w - d); \
-	return mix(0.5 * r, duty, smoothstep(1.1, 1.2, w)); \
+		   + erf(p - w + d) - erf(p - w - d); \
+	return mix(0.5 * r, duty, smoothstep(1.6, 1.4, w)); \
 }
 
 _STEP_DEFINE(float)
